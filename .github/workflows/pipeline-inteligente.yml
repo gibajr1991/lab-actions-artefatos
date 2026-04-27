@@ -1,57 +1,32 @@
-name: Pipeline Inteligente
+name: Aprendendo Artefatos
 
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 2 * * *'
+on: 
   push:
-    branches:
-      - 'feature/*'
-    paths:
-      - 'src/**'
-      - '!src/docs/**'
+  workflow_dispatch:
 
 jobs:
-  job_gerador:
+  gerador: 
+    name: Produzir Arquivo
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout do código
-        uses: actions/checkout@v4
+      - name: Criar relatório de teste
+        run: echo "Sucesso! Artefato gerado em $(date)" > relatorio.txt
 
-      - name: Simular build do projeto
-        run: |
-          mkdir -p saida_build
-          echo "Relatório de Testes - $(date)" > saida_build/relatorio1.txt
-          echo "Cobertura de código: 85%" >> saida_build/relatorio1.txt
-          echo "-----------------------------------" > saida_build/relatorio2.txt
-          echo "Erros encontrados: 3" >> saida_build/relatorio2.txt
-          echo "Testes passando: 47/50" >> saida_build/relatorio2.txt
-
-      - name: Upload de artefatos
-        uses: actions/upload-artifact@v4
+      - name: Salvar Artefato
+        uses: actions/upload-artifact@v4 
         with:
-          name: meus-relatorios-oficiais
-          path: saida_build/
+          name: meu-pacote 
+          path: relatorio.txt 
 
-  job_auditoria:
+  consumidor: 
+    name: Ler Arquivo
     runs-on: ubuntu-latest
-    needs: job_gerador
-
+    needs: [gerador] 
     steps:
-      - name: Download de artefatos
-        uses: actions/download-artifact@v4
+      - name: Recuperar Artefato
+        uses: actions/download-artifact@v4 
         with:
-          name: meus-relatorios-oficiais
-          path: relatorios_baixados
+          name: meu-pacote 
 
-      - name: Verificar conteúdo dos relatórios
-        run: |
-          echo "=== Listando todos os arquivos ==="
-          ls -R
-          echo ""
-          echo "=== Conteúdo do relatorio1.txt ==="
-          cat relatorios_baixados/relatorio1.txt
-          echo ""
-          echo "=== Conteúdo do relatorio2.txt ==="
-          cat relatorios_baixados/relatorio2.txt
+      - name: Exibir Conteúdo
+        run: cat relatorio.txt
