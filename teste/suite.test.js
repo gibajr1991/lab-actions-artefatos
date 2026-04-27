@@ -1,0 +1,1 @@
+ Describe('teste',() => {'it('passa',() => {});});
